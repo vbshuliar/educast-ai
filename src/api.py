@@ -46,6 +46,41 @@ def health_check():
     })
 
 
+@app.route('/api/voices', methods=['GET'])
+def get_voices():
+    """
+    Get list of available ElevenLabs voices
+    
+    Response:
+    {
+        "success": true/false,
+        "voices": [
+            {
+                "voice_id": "...",
+                "name": "...",
+                "category": "...",
+                "description": "..."
+            }
+        ],
+        "error": "error message if failed"
+    }
+    """
+    try:
+        if not podcast_gen or not podcast_gen.audio_gen:
+            return jsonify({
+                'success': False,
+                'error': 'Podcast generator not initialized'
+            }), 500
+
+        result = podcast_gen.audio_gen.get_available_voices()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+
 @app.route('/api/extract', methods=['POST'])
 def extract_knowledge():
     """
@@ -166,7 +201,8 @@ def generate_podcast():
         "query": "What to learn about",
         "style": "educational" | "casual" | "debate",  # optional
         "length": "short" | "medium" | "detailed",    # optional
-        "num_speakers": 2                              # optional
+        "num_speakers": 2,                             # optional (1-4)
+        "voice_ids": ["voice_id_1", "voice_id_2"]      # optional, ElevenLabs voice IDs
     }
 
     Response:
@@ -190,7 +226,9 @@ def generate_podcast():
         query = data['query'].strip()
         style = data.get('style', 'educational')
         length = data.get('length', 'medium')
-        num_speakers = data.get('num_speakers', 2)
+        num_speakers = min(max(data.get('num_speakers', 2), 1), 4)  # Limit 1-4 speakers
+        voice_ids = data.get('voice_ids', None)  # Optional custom voice IDs
+        characteristics = data.get('characteristics', None)  # Optional custom characteristics
 
         if not podcast_gen:
             return jsonify({
@@ -222,8 +260,13 @@ def generate_podcast():
             output_path=output_path,
             num_speakers=num_speakers,
             style=style,
-            length=length
+            length=length,
+            voice_ids=voice_ids,
+            characteristics=characteristics
         )
+        
+        # Get speaker config for descriptions
+        speaker_config = podcast_gen.script_gen._get_speaker_config(num_speakers, style, voice_ids, characteristics)
 
         if not podcast_result['success']:
             return jsonify({
@@ -244,7 +287,10 @@ def generate_podcast():
             'audio_data': audio_data,  # Base64 encoded audio
             'audio_filename': os.path.basename(podcast_result['audio_path']),
             'script': podcast_result['script'],
-            'metadata': podcast_result['metadata']
+            'metadata': {
+                **podcast_result['metadata'],
+                'speaker_config': speaker_config  # Include speaker descriptions
+            }
         })
 
     except Exception as e:

@@ -39,7 +39,9 @@ class ScriptGenerator:
         topic: str,
         num_speakers: int = 2,
         style: str = "educational",
-        length: str = "medium"
+        length: str = "medium",
+        voice_ids: Optional[List[str]] = None,
+        characteristics: Optional[List[str]] = None
     ) -> Dict:
         """
         Generate a conversational podcast script from knowledge content
@@ -63,7 +65,7 @@ class ScriptGenerator:
 
         try:
             # Define speaker personalities
-            speaker_config = self._get_speaker_config(num_speakers, style)
+            speaker_config = self._get_speaker_config(num_speakers, style, voice_ids, characteristics)
 
             # Create system prompt
             system_prompt = self._create_system_prompt(speaker_config, style, length)
@@ -114,60 +116,111 @@ Generate an engaging {length} podcast dialogue based on this content.
                 'error': str(e)
             }
 
-    def _get_speaker_config(self, num_speakers: int, style: str) -> List[Dict]:
+    def _get_speaker_config(self, num_speakers: int, style: str, voice_ids: Optional[List[str]] = None, characteristics: Optional[List[str]] = None) -> List[Dict]:
         """
         Define speaker personalities based on style
+
+        Args:
+            num_speakers: Number of speakers (1-4 supported)
+            style: Podcast style
+            voice_ids: Optional list of ElevenLabs voice IDs to use. If provided, overrides default voices.
 
         Returns:
             List of speaker configurations
         """
-        if style == "educational":
-            configs = [
-                {
-                    "name": "Alex",
-                    "role": "Host/Expert",
-                    "personality": "Knowledgeable, enthusiastic, clear explainer",
-                    "voice_id": "9BWtsMINqrJLrRacOk9x"  # Aria (female, expressive)
-                },
-                {
-                    "name": "Jordan",
-                    "role": "Curious Learner",
-                    "personality": "Curious, asks great questions, relatable",
-                    "voice_id": "IKne3meq5aSn9XLyUdCD"  # Paul (male, friendly)
-                }
-            ]
-        elif style == "casual":
-            configs = [
-                {
-                    "name": "Sam",
-                    "role": "Co-host",
-                    "personality": "Laid-back, conversational, storyteller",
-                    "voice_id": "9BWtsMINqrJLrRacOk9x"
-                },
-                {
-                    "name": "Riley",
-                    "role": "Co-host",
-                    "personality": "Energetic, witty, brings fun facts",
-                    "voice_id": "IKne3meq5aSn9XLyUdCD"
-                }
-            ]
-        else:  # debate
-            configs = [
-                {
-                    "name": "Morgan",
-                    "role": "Advocate",
-                    "personality": "Analytical, presents one perspective",
-                    "voice_id": "9BWtsMINqrJLrRacOk9x"
-                },
-                {
-                    "name": "Taylor",
-                    "role": "Challenger",
-                    "personality": "Critical thinker, questions assumptions",
-                    "voice_id": "IKne3meq5aSn9XLyUdCD"
-                }
-            ]
+        # Available ElevenLabs voices (premium voices)
+        # You can get more voice IDs from: https://elevenlabs.io/app/voices
+        available_voices = [
+            "9BWtsMINqrJLrRacOk9x",  # Aria (female, expressive)
+            "IKne3meq5aSn9XLyUdCD",  # Paul (male, friendly)
+            "EXAVITQu4vr4xnSDxMaL",  # Bella (female, clear)
+            "VR6AewLTigWG4xSOukaG",  # Arnold (male, deep)
+            "ThT5KcBeYPX3keUQqHPh",  # Dorothy (female, warm)
+            "XB0fDUnXU5powFXDhCwa",  # Charlotte (female, professional)
+            "ErXwobaYiN019PkySvjV",  # Antoni (male, smooth)
+            "MF3mGyEYCl7XYWbV9V6O",  # Elli (female, young)
+        ]
 
-        return configs[:num_speakers]
+        # Use provided voice IDs or default to first available voices
+        if voice_ids:
+            selected_voices = voice_ids[:num_speakers]
+            # Pad with default voices if not enough provided
+            while len(selected_voices) < num_speakers:
+                selected_voices.append(available_voices[len(selected_voices) % len(available_voices)])
+        else:
+            selected_voices = available_voices[:num_speakers]
+
+        # Limit to 4 speakers max for better quality
+        num_speakers = min(num_speakers, 4)
+        selected_voices = selected_voices[:num_speakers]
+
+        # Characteristic to personality mapping
+        characteristic_map = {
+            'expert': ("Host/Expert", "Knowledgeable, enthusiastic, clear explainer"),
+            'curious': ("Curious Learner", "Curious, asks great questions, relatable"),
+            'analytical': ("Analyst", "Analytical, provides depth and context"),
+            'practical': ("Practical Expert", "Experienced, shares practical insights"),
+            'casual': ("Co-host", "Laid-back, conversational, storyteller"),
+            'energetic': ("Co-host", "Energetic, witty, brings fun facts"),
+            'friendly': ("Guest", "Friendly, engaging, relatable"),
+            'humorous': ("Guest", "Humorous, light-hearted, entertaining"),
+            'advocate': ("Advocate", "Analytical, presents one perspective"),
+            'challenger': ("Challenger", "Critical thinker, questions assumptions"),
+            'moderator': ("Moderator", "Balanced, facilitates discussion"),
+            'data-driven': ("Analyst", "Data-driven, provides evidence")
+        }
+
+        # Default speaker names
+        default_names = ["Alex", "Jordan", "Sam", "Riley"]
+
+        configs = []
+        for i in range(num_speakers):
+            # Use custom characteristics if provided, otherwise use style defaults
+            if characteristics and i < len(characteristics) and characteristics[i] in characteristic_map:
+                char_value = characteristics[i]
+                role, personality = characteristic_map[char_value]
+                name = default_names[i]
+            else:
+                # Use style-based defaults
+                if style == "educational":
+                    speaker_names = ["Alex", "Jordan", "Sam", "Riley"]
+                    speaker_roles = ["Host/Expert", "Curious Learner", "Co-host", "Guest Expert"]
+                    personalities = [
+                        "Knowledgeable, enthusiastic, clear explainer",
+                        "Curious, asks great questions, relatable",
+                        "Analytical, provides depth and context",
+                        "Experienced, shares practical insights"
+                    ]
+                elif style == "casual":
+                    speaker_names = ["Sam", "Riley", "Alex", "Jordan"]
+                    speaker_roles = ["Co-host", "Co-host", "Guest", "Guest"]
+                    personalities = [
+                        "Laid-back, conversational, storyteller",
+                        "Energetic, witty, brings fun facts",
+                        "Friendly, engaging, relatable",
+                        "Humorous, light-hearted, entertaining"
+                    ]
+                else:  # debate
+                    speaker_names = ["Morgan", "Taylor", "Casey", "Jordan"]
+                    speaker_roles = ["Advocate", "Challenger", "Moderator", "Analyst"]
+                    personalities = [
+                        "Analytical, presents one perspective",
+                        "Critical thinker, questions assumptions",
+                        "Balanced, facilitates discussion",
+                        "Data-driven, provides evidence"
+                    ]
+                name = speaker_names[i] if i < len(speaker_names) else default_names[i]
+                role = speaker_roles[i] if i < len(speaker_roles) else "Speaker"
+                personality = personalities[i] if i < len(personalities) else "Engaging conversationalist"
+
+            configs.append({
+                "name": name,
+                "role": role,
+                "personality": personality,
+                "voice_id": selected_voices[i]
+            })
+
+        return configs
 
     def _create_system_prompt(self, speaker_config: List[Dict], style: str, length: str) -> str:
         """

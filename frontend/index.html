@@ -269,6 +269,92 @@
             margin: 5px 0;
             font-size: 0.95rem;
         }
+
+        .podcast-settings {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .podcast-settings h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        select {
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            border-color: #667eea;
+        }
+
+        .speaker-voices {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .speaker-voice-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .speaker-voice-item label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .collapsible-header:hover {
+            color: #764ba2;
+        }
     </style>
 </head>
 
@@ -276,7 +362,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
         function App() {
             const [query, setQuery] = useState('');
@@ -288,7 +374,149 @@
             const [scriptCollapsed, setScriptCollapsed] = useState(false);
             const [knowledgeCollapsed, setKnowledgeCollapsed] = useState(false);
 
+            // Podcast customization state
+            const [numSpeakers, setNumSpeakers] = useState(2);
+            const [style, setStyle] = useState('educational');
+            const [length, setLength] = useState('short');
+            const [selectedVoices, setSelectedVoices] = useState({});
+            const [selectedCharacteristics, setSelectedCharacteristics] = useState({});
+            const [availableVoices, setAvailableVoices] = useState([]);
+            const [voicesLoading, setVoicesLoading] = useState(false);
+            const [settingsExpanded, setSettingsExpanded] = useState(false);
+
+            // Available characteristics for speakers
+            const availableCharacteristics = [
+                { value: 'expert', label: 'Expert - Knowledgeable, authoritative, clear' },
+                { value: 'curious', label: 'Curious - Questioning, eager to learn, relatable' },
+                { value: 'analytical', label: 'Analytical - Deep thinking, provides context' },
+                { value: 'practical', label: 'Practical - Experienced, shares insights' },
+                { value: 'casual', label: 'Casual - Laid-back, conversational, storyteller' },
+                { value: 'energetic', label: 'Energetic - Witty, brings fun facts' },
+                { value: 'friendly', label: 'Friendly - Engaging, relatable, warm' },
+                { value: 'humorous', label: 'Humorous - Light-hearted, entertaining' },
+                { value: 'advocate', label: 'Advocate - Presents one perspective, logical' },
+                { value: 'challenger', label: 'Challenger - Critical, questions assumptions' },
+                { value: 'moderator', label: 'Moderator - Balanced, facilitates discussion' },
+                { value: 'data-driven', label: 'Data-driven - Evidence-based, objective' }
+            ];
+
             const API_URL = 'http://localhost:5001/api';
+
+            // Fetch available voices on mount
+            useEffect(() => {
+                fetchAvailableVoices();
+            }, []);
+
+            const fetchAvailableVoices = async () => {
+                setVoicesLoading(true);
+                try {
+                    const response = await fetch(`${API_URL}/voices`);
+                    const data = await response.json();
+                    if (data.success && data.voices) {
+                        setAvailableVoices(data.voices);
+                        // Initialize default voices
+                        const defaultVoices = {};
+                        for (let i = 0; i < numSpeakers; i++) {
+                            if (data.voices[i]) {
+                                defaultVoices[i] = data.voices[i].voice_id;
+                            }
+                        }
+                        setSelectedVoices(defaultVoices);
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch voices:', err);
+                } finally {
+                    setVoicesLoading(false);
+                }
+            };
+
+            // Update selected voices and characteristics when number of speakers changes
+            useEffect(() => {
+                if (availableVoices.length > 0) {
+                    const newVoices = {};
+                    const newCharacteristics = {};
+                    for (let i = 0; i < numSpeakers; i++) {
+                        if (selectedVoices[i]) {
+                            newVoices[i] = selectedVoices[i];
+                        } else if (availableVoices[i]) {
+                            newVoices[i] = availableVoices[i].voice_id;
+                        }
+                        // Set default characteristics based on style
+                        if (!selectedCharacteristics[i]) {
+                            const speakerDescs = getSpeakerDescriptions();
+                            const speaker = speakerDescs[i];
+                            if (speaker) {
+                                // Map personality to characteristic value
+                                const personalityMap = {
+                                    'Knowledgeable, enthusiastic, clear explainer': 'expert',
+                                    'Curious, asks great questions, relatable': 'curious',
+                                    'Analytical, provides depth and context': 'analytical',
+                                    'Experienced, shares practical insights': 'practical',
+                                    'Laid-back, conversational, storyteller': 'casual',
+                                    'Energetic, witty, brings fun facts': 'energetic',
+                                    'Friendly, engaging, relatable': 'friendly',
+                                    'Humorous, light-hearted, entertaining': 'humorous',
+                                    'Analytical, presents one perspective': 'advocate',
+                                    'Critical thinker, questions assumptions': 'challenger',
+                                    'Balanced, facilitates discussion': 'moderator',
+                                    'Data-driven, provides evidence': 'data-driven'
+                                };
+                                newCharacteristics[i] = personalityMap[speaker.personality] || 'expert';
+                            } else {
+                                newCharacteristics[i] = 'expert';
+                            }
+                        } else {
+                            newCharacteristics[i] = selectedCharacteristics[i];
+                        }
+                    }
+                    setSelectedVoices(newVoices);
+                    setSelectedCharacteristics(newCharacteristics);
+                }
+            }, [numSpeakers, availableVoices.length, style]);
+
+            // Get speaker descriptions based on style
+            const getSpeakerDescriptions = () => {
+                const descriptions = {
+                    educational: [
+                        { name: "Alex", desc: "Expert, Enthusiastic, Clear", role: "Host/Expert", personality: "Knowledgeable, enthusiastic, clear explainer" },
+                        { name: "Jordan", desc: "Curious, Questioning, Relatable", role: "Curious Learner", personality: "Curious, asks great questions, relatable" },
+                        { name: "Sam", desc: "Analytical, Deep, Contextual", role: "Co-host", personality: "Analytical, provides depth and context" },
+                        { name: "Riley", desc: "Experienced, Practical, Insightful", role: "Guest Expert", personality: "Experienced, shares practical insights" }
+                    ],
+                    casual: [
+                        { name: "Sam", desc: "Laid-back, Conversational, Storyteller", role: "Co-host", personality: "Laid-back, conversational, storyteller" },
+                        { name: "Riley", desc: "Energetic, Witty, Fun", role: "Co-host", personality: "Energetic, witty, brings fun facts" },
+                        { name: "Alex", desc: "Friendly, Engaging, Relatable", role: "Guest", personality: "Friendly, engaging, relatable" },
+                        { name: "Jordan", desc: "Humorous, Light-hearted, Entertaining", role: "Guest", personality: "Humorous, light-hearted, entertaining" }
+                    ],
+                    debate: [
+                        { name: "Morgan", desc: "Analytical, Perspective, Logical", role: "Advocate", personality: "Analytical, presents one perspective" },
+                        { name: "Taylor", desc: "Critical, Questioning, Challenging", role: "Challenger", personality: "Critical thinker, questions assumptions" },
+                        { name: "Casey", desc: "Balanced, Facilitating, Moderate", role: "Moderator", personality: "Balanced, facilitates discussion" },
+                        { name: "Jordan", desc: "Data-driven, Evidence-based, Objective", role: "Analyst", personality: "Data-driven, provides evidence" }
+                    ]
+                };
+                return descriptions[style] || descriptions.educational;
+            };
+
+            // Get color for each speaker
+            const getSpeakerColor = (speakerName, index) => {
+                const colors = [
+                    '#667eea', // Purple/Blue
+                    '#4caf50', // Green
+                    '#ff6b6b', // Red/Coral
+                    '#ffa726', // Orange
+                    '#26c6da', // Cyan
+                    '#ab47bc', // Purple
+                    '#66bb6a', // Light Green
+                    '#ef5350'  // Light Red
+                ];
+
+                // Try to get consistent color by speaker name
+                const speakerDescs = getSpeakerDescriptions();
+                const speakerIndex = speakerDescs.findIndex(s => s.name === speakerName);
+                return colors[speakerIndex >= 0 ? speakerIndex : index % colors.length];
+            };
 
             // Clean answer text by removing source references and citations
             const cleanAnswerText = (text) => {
@@ -393,6 +621,18 @@
                 setError(null);
                 setPodcast(null);
 
+                // Build voice_ids array from selected voices
+                const voiceIds = Object.keys(selectedVoices)
+                    .sort((a, b) => parseInt(a) - parseInt(b))
+                    .map(key => selectedVoices[key])
+                    .filter(Boolean);
+
+                // Build characteristics array
+                const characteristics = Object.keys(selectedCharacteristics)
+                    .sort((a, b) => parseInt(a) - parseInt(b))
+                    .map(key => selectedCharacteristics[key])
+                    .filter(Boolean);
+
                 try {
                     const response = await fetch(`${API_URL}/generate-podcast`, {
                         method: 'POST',
@@ -401,8 +641,11 @@
                         },
                         body: JSON.stringify({
                             query: query.trim(),
-                            style: 'educational',
-                            length: 'short'
+                            style: style,
+                            length: length,
+                            num_speakers: numSpeakers,
+                            voice_ids: voiceIds.length > 0 ? voiceIds : undefined,
+                            characteristics: characteristics.length > 0 ? characteristics : undefined
                         })
                     });
 
@@ -490,6 +733,138 @@
                         {result && (
                             <div className="status success">
                                 ✓ Successfully extracted knowledge from {result.sources?.length || 0} sources
+
+                                {/* Podcast Customization Settings */}
+                                <div className="podcast-settings">
+                                    <div
+                                        className="collapsible-header"
+                                        onClick={() => setSettingsExpanded(!settingsExpanded)}
+                                    >
+                                        <span>🎛️ Customize Podcast Settings</span>
+                                        <span>{settingsExpanded ? '▼' : '▶'}</span>
+                                    </div>
+
+                                    {settingsExpanded && (
+                                        <div>
+                                            <div className="settings-grid">
+                                                <div className="setting-group">
+                                                    <label>Number of Speakers</label>
+                                                    <select
+                                                        value={numSpeakers}
+                                                        onChange={(e) => setNumSpeakers(parseInt(e.target.value))}
+                                                    >
+                                                        <option value={1}>1 Speaker</option>
+                                                        <option value={2}>2 Speakers</option>
+                                                        <option value={3}>3 Speakers</option>
+                                                        <option value={4}>4 Speakers</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="setting-group">
+                                                    <label>Podcast Style</label>
+                                                    <select
+                                                        value={style}
+                                                        onChange={(e) => setStyle(e.target.value)}
+                                                    >
+                                                        <option value="educational">Educational</option>
+                                                        <option value="casual">Casual</option>
+                                                        <option value="debate">Debate</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="setting-group">
+                                                    <label>Podcast Length</label>
+                                                    <select
+                                                        value={length}
+                                                        onChange={(e) => setLength(e.target.value)}
+                                                    >
+                                                        <option value="short">Short (recommended)</option>
+                                                        <option value="medium">Medium</option>
+                                                        <option value="detailed">Detailed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {/* Voice and Characteristics Selection */}
+                                            {availableVoices.length > 0 && (
+                                                <div className="speaker-voices" style={{ marginTop: '20px' }}>
+                                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: '600' }}>
+                                                        Customize Each Speaker:
+                                                    </label>
+                                                    {Array.from({ length: numSpeakers }).map((_, index) => {
+                                                        const speakerDescs = getSpeakerDescriptions();
+                                                        const speaker = speakerDescs[index] || { name: `Speaker ${index + 1}`, desc: "" };
+                                                        const speakerColor = getSpeakerColor(speaker.name, index);
+                                                        return (
+                                                            <div key={index} className="speaker-voice-item">
+                                                                <label style={{
+                                                                    color: speakerColor,
+                                                                    fontWeight: '600',
+                                                                    fontSize: '0.95rem',
+                                                                    marginBottom: '8px',
+                                                                    display: 'block'
+                                                                }}>
+                                                                    Speaker {index + 1}
+                                                                </label>
+                                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                                                    <div>
+                                                                        <label style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px', display: 'block' }}>
+                                                                            Voice:
+                                                                        </label>
+                                                                        <select
+                                                                            value={selectedVoices[index] || ''}
+                                                                            onChange={(e) => {
+                                                                                const newVoices = { ...selectedVoices };
+                                                                                newVoices[index] = e.target.value;
+                                                                                setSelectedVoices(newVoices);
+                                                                            }}
+                                                                            style={{ width: '100%' }}
+                                                                        >
+                                                                            <option value="">Select voice...</option>
+                                                                            {availableVoices.map((voice) => (
+                                                                                <option key={voice.voice_id} value={voice.voice_id}>
+                                                                                    {voice.name}
+                                                                                </option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px', display: 'block' }}>
+                                                                            Characteristics:
+                                                                        </label>
+                                                                        <select
+                                                                            value={selectedCharacteristics[index] || ''}
+                                                                            onChange={(e) => {
+                                                                                const newCharacteristics = { ...selectedCharacteristics };
+                                                                                newCharacteristics[index] = e.target.value;
+                                                                                setSelectedCharacteristics(newCharacteristics);
+                                                                            }}
+                                                                            style={{ width: '100%' }}
+                                                                        >
+                                                                            <option value="">Select characteristic...</option>
+                                                                            {availableCharacteristics.map((char) => (
+                                                                                <option key={char.value} value={char.value}>
+                                                                                    {char.label}
+                                                                                </option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+
+                                            {voicesLoading && (
+                                                <div style={{ textAlign: 'center', padding: '10px', color: '#666' }}>
+                                                    Loading available voices...
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div style={{ marginTop: '15px' }}>
                                     <button
                                         onClick={handleGeneratePodcast}
@@ -545,20 +920,23 @@
                                     {scriptCollapsed ? '▶' : '▼'}
                                 </span>
                             </div>
-                            {!scriptCollapsed && podcast.script.map((turn, idx) => (
-                                <div key={idx} style={{
-                                    marginBottom: '15px',
-                                    padding: '12px',
-                                    background: idx % 2 === 0 ? '#f5f5f5' : '#e8f5e9',
-                                    borderRadius: '8px',
-                                    borderLeft: `4px solid ${idx % 2 === 0 ? '#667eea' : '#4caf50'}`
-                                }}>
-                                    <strong style={{ color: idx % 2 === 0 ? '#667eea' : '#4caf50' }}>
-                                        {turn.speaker}:
-                                    </strong>
-                                    <span style={{ marginLeft: '8px' }}>{turn.text}</span>
-                                </div>
-                            ))}
+                            {!scriptCollapsed && podcast.script.map((turn, idx) => {
+                                const speakerColor = getSpeakerColor(turn.speaker, idx);
+                                return (
+                                    <div key={idx} style={{
+                                        marginBottom: '15px',
+                                        padding: '12px',
+                                        background: '#f8f9fa',
+                                        borderRadius: '8px',
+                                        borderLeft: `4px solid ${speakerColor}`
+                                    }}>
+                                        <strong style={{ color: speakerColor }}>
+                                            {turn.speaker}:
+                                        </strong>
+                                        <span style={{ marginLeft: '8px' }}>{turn.text}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
 

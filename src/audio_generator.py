@@ -34,6 +34,33 @@ class AudioGenerator:
         self.client = ElevenLabs(api_key=self.api_key)
         print("✓ ElevenLabs client initialized")
 
+    def get_available_voices(self) -> Dict:
+        """
+        Get list of available ElevenLabs voices
+
+        Returns:
+            Dictionary with success status and list of voices
+        """
+        try:
+            voices = self.client.voices.get_all()
+            return {
+                'success': True,
+                'voices': [
+                    {
+                        'voice_id': voice.voice_id,
+                        'name': voice.name,
+                        'category': getattr(voice, 'category', 'premade'),
+                        'description': getattr(voice, 'description', '')
+                    }
+                    for voice in voices.voices
+                ]
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
     def generate_podcast_audio(
         self,
         dialogue_script: List[Dict],
@@ -176,7 +203,9 @@ class PodcastGenerator:
         output_path: str = "podcast.mp3",
         num_speakers: int = 2,
         style: str = "educational",
-        length: str = "medium"
+        length: str = "medium",
+        voice_ids: Optional[List[str]] = None,
+        characteristics: Optional[List[str]] = None
     ) -> Dict:
         """
         Generate complete podcast from knowledge content
@@ -203,7 +232,9 @@ class PodcastGenerator:
             topic=topic,
             num_speakers=num_speakers,
             style=style,
-            length=length
+            length=length,
+            voice_ids=voice_ids,
+            characteristics=characteristics
         )
 
         if not script_result['success']:
