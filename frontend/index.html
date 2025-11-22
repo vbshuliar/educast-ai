@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCast AI - Learn Anything</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 16px 20px;
+            font-size: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .output-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .answer {
+            background: #f5f5f5;
+            padding: 24px;
+            border-radius: 12px;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #333;
+            white-space: pre-wrap;
+            margin-bottom: 20px;
+        }
+
+        .sources {
+            margin-top: 20px;
+        }
+
+        .sources h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        .source-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .source-item:hover {
+            border-color: #667eea;
+        }
+
+        .source-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .source-url {
+            font-size: 0.9rem;
+            color: #666;
+            word-break: break-all;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1976d2;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin-right: 8px;
+        }
+
+        .audio-player-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .audio-player-container h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        audio {
+            width: 100%;
+            border-radius: 12px;
+            outline: none;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 28px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            width: 100%;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .podcast-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: white;
+        }
+
+        .podcast-info p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function App() {
+            const [query, setQuery] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [result, setResult] = useState(null);
+            const [error, setError] = useState(null);
+            const [podcastLoading, setPodcastLoading] = useState(false);
+            const [podcast, setPodcast] = useState(null);
+            const [scriptCollapsed, setScriptCollapsed] = useState(false);
+            const [knowledgeCollapsed, setKnowledgeCollapsed] = useState(false);
+
+            const API_URL = 'http://localhost:5001/api';
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+
+                if (!query.trim()) {
+                    setError('Please enter what you want to learn');
+                    return;
+                }
+
+                setLoading(true);
+                setError(null);
+                setResult(null);
+
+                try {
+                    const response = await fetch(`${API_URL}/extract`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query: query.trim() })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        setResult(data);
+                    } else {
+                        setError(data.error || 'Failed to extract knowledge');
+                    }
+                } catch (err) {
+                    setError('Failed to connect to API. Make sure the server is running on port 5001.');
+                    console.error('API Error:', err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleGeneratePodcast = async () => {
+                if (!query.trim()) {
+                    setError('Please enter what you want to learn');
+                    return;
+                }
+
+                setPodcastLoading(true);
+                setError(null);
+                setPodcast(null);
+
+                try {
+                    const response = await fetch(`${API_URL}/generate-podcast`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: query.trim(),
+                            style: 'educational',
+                            length: 'short'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Convert base64 to blob and create local URL
+                        const audioBlob = base64ToBlob(data.audio_data, 'audio/mpeg');
+                        const audioUrl = URL.createObjectURL(audioBlob);
+
+                        // Trigger automatic download
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = audioUrl;
+                        downloadLink.download = data.audio_filename;
+                        downloadLink.click();
+
+                        // Set podcast data with local blob URL
+                        setPodcast({
+                            ...data,
+                            audioUrl: audioUrl,
+                            audioBlob: audioBlob
+                        });
+                    } else {
+                        setError(data.error || 'Failed to generate podcast');
+                    }
+                } catch (err) {
+                    setError('Failed to generate podcast. ' + err.message);
+                    console.error('Podcast Error:', err);
+                } finally {
+                    setPodcastLoading(false);
+                }
+            };
+
+            // Helper function to convert base64 to blob
+            const base64ToBlob = (base64, mimeType) => {
+                const byteCharacters = atob(base64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                return new Blob([byteArray], { type: mimeType });
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🎙️ EduCast AI</h1>
+                        <p>Transform any topic into knowledge</p>
+                    </div>
+
+                    <div className="card">
+                        <form onSubmit={handleSubmit}>
+                            <div className="input-section">
+                                <label htmlFor="query">What do you want to learn?</label>
+                                <div className="input-wrapper">
+                                    <input
+                                        id="query"
+                                        type="text"
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="e.g., I want to learn about quantum computing"
+                                        disabled={loading}
+                                    />
+                                    <button type="submit" disabled={loading}>
+                                        {loading ? 'Extracting...' : 'Extract Knowledge'}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        {loading && (
+                            <div className="status loading">
+                                <div className="spinner"></div>
+                                Searching the internet for knowledge...
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="status error">
+                                ❌ {error}
+                            </div>
+                        )}
+
+                        {result && (
+                            <div className="status success">
+                                ✓ Successfully extracted knowledge from {result.sources?.length || 0} sources
+                                <div style={{marginTop: '15px'}}>
+                                    <button
+                                        onClick={handleGeneratePodcast}
+                                        disabled={podcastLoading}
+                                        style={{width: '100%'}}
+                                    >
+                                        {podcastLoading ? '🎬 Generating Podcast...' : '🎙️ Generate Podcast'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {podcastLoading && (
+                            <div className="status loading" style={{marginTop: '15px'}}>
+                                <div className="spinner"></div>
+                                Generating podcast (this may take 30-60 seconds)...
+                            </div>
+                        )}
+
+                        {podcast && (
+                            <div className="audio-player-container">
+                                <h3>🎙️ Your Podcast is Ready!</h3>
+                                <audio controls autoPlay key={podcast.audioUrl}>
+                                    <source src={podcast.audioUrl} type="audio/mpeg" />
+                                    Your browser does not support the audio element.
+                                </audio>
+                                <div className="podcast-info">
+                                    <p><strong>Speakers:</strong> {podcast.metadata?.num_speakers || 2}</p>
+                                    <p><strong>Style:</strong> {podcast.metadata?.style || 'Educational'}</p>
+                                    <p><strong>Duration:</strong> ~{Math.round(podcast.metadata?.estimated_duration || 0)}s</p>
+                                    <p style={{marginTop: '10px', fontSize: '0.85rem', opacity: '0.9'}}>✓ Downloaded to your device</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {podcast && podcast.script && (
+                        <div className="card output-section">
+                            <div
+                                onClick={() => setScriptCollapsed(!scriptCollapsed)}
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    cursor: 'pointer',
+                                    marginBottom: scriptCollapsed ? '0' : '15px'
+                                }}
+                            >
+                                <h2 style={{margin: 0}}>📝 Podcast Script</h2>
+                                <span style={{
+                                    fontSize: '1.5rem',
+                                    color: '#667eea',
+                                    transition: 'transform 0.3s'
+                                }}>
+                                    {scriptCollapsed ? '▶' : '▼'}
+                                </span>
+                            </div>
+                            {!scriptCollapsed && podcast.script.map((turn, idx) => (
+                                <div key={idx} style={{
+                                    marginBottom: '15px',
+                                    padding: '12px',
+                                    background: idx % 2 === 0 ? '#f5f5f5' : '#e8f5e9',
+                                    borderRadius: '8px',
+                                    borderLeft: `4px solid ${idx % 2 === 0 ? '#667eea' : '#4caf50'}`
+                                }}>
+                                    <strong style={{color: idx % 2 === 0 ? '#667eea' : '#4caf50'}}>
+                                        {turn.speaker}:
+                                    </strong>
+                                    <span style={{marginLeft: '8px'}}>{turn.text}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {result && result.success && (
+                        <div className="card output-section">
+                            <div
+                                onClick={() => setKnowledgeCollapsed(!knowledgeCollapsed)}
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    cursor: 'pointer',
+                                    marginBottom: knowledgeCollapsed ? '0' : '15px'
+                                }}
+                            >
+                                <h2 style={{margin: 0}}>📚 Knowledge Summary</h2>
+                                <span style={{
+                                    fontSize: '1.5rem',
+                                    color: '#667eea',
+                                    transition: 'transform 0.3s'
+                                }}>
+                                    {knowledgeCollapsed ? '▶' : '▼'}
+                                </span>
+                            </div>
+
+                            {!knowledgeCollapsed && (
+                                <>
+                                    <div style={{
+                                        background: '#f8f9fa',
+                                        padding: '24px',
+                                        borderRadius: '12px',
+                                        borderLeft: '4px solid #667eea',
+                                        marginBottom: '24px',
+                                        fontFamily: 'Georgia, serif'
+                                    }}>
+                                        <div
+                                            style={{
+                                                fontSize: '1.05rem',
+                                                lineHeight: '1.8',
+                                                color: '#2c3e50'
+                                            }}
+                                            dangerouslySetInnerHTML={{
+                                                __html: result.answer
+                                                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
+                                                    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #667eea; text-decoration: underline;">$1</a>')
+                                                    .replace(/^## (.*?)$/gm, '<h3 style="font-size: 1.3rem; color: #667eea; margin: 20px 0 10px 0; font-family: -apple-system, sans-serif;">$1</h3>')
+                                                    .replace(/\n\n/g, '</p><p style="margin: 12px 0;">')
+                                                    .replace(/^(.+)$/gm, '<p style="margin: 12px 0;">$1</p>')
+                                            }}
+                                        />
+                                    </div>
+
+                                    {result.sources && result.sources.length > 0 && (
+                                        <div style={{
+                                            background: '#ffffff',
+                                            padding: '20px',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e0e0e0'
+                                        }}>
+                                            <h3 style={{
+                                                fontSize: '1.2rem',
+                                                marginBottom: '15px',
+                                                color: '#555',
+                                                fontWeight: '600'
+                                            }}>
+                                                🔗 Sources & References ({result.sources.length})
+                                            </h3>
+                                            <div style={{
+                                                display: 'grid',
+                                                gap: '10px',
+                                                maxWidth: '100%'
+                                            }}>
+                                                {result.sources.map((source, idx) => (
+                                                    <a
+                                                        key={idx}
+                                                        href={source.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            display: 'block',
+                                                            padding: '12px 16px',
+                                                            background: '#fafafa',
+                                                            border: '1px solid #e0e0e0',
+                                                            borderRadius: '8px',
+                                                            textDecoration: 'none',
+                                                            transition: 'all 0.2s',
+                                                            cursor: 'pointer',
+                                                            overflow: 'hidden'
+                                                        }}
+                                                        onMouseOver={(e) => {
+                                                            e.currentTarget.style.borderColor = '#667eea';
+                                                            e.currentTarget.style.backgroundColor = '#f0f4ff';
+                                                        }}
+                                                        onMouseOut={(e) => {
+                                                            e.currentTarget.style.borderColor = '#e0e0e0';
+                                                            e.currentTarget.style.backgroundColor = '#fafafa';
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            fontWeight: '600',
+                                                            color: '#667eea',
+                                                            marginBottom: '4px',
+                                                            fontSize: '0.95rem',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap'
+                                                        }}>
+                                                            {idx + 1}. {source.title || 'Source'}
+                                                        </div>
+                                                        <div style={{
+                                                            fontSize: '0.8rem',
+                                                            color: '#888',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap'
+                                                        }}>
+                                                            🌐 {source.url}
+                                                        </div>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
+
+                    {!result && !loading && !error && (
+                        <div className="card">
+                            <div className="empty-state">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                <p>Enter a topic above to extract knowledge from the internet</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Core dependencies
+valyu>=0.1.0
+python-dotenv>=1.0.0
+
+# API Server
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Podcast generation
+openai>=1.0.0
+elevenlabs>=1.0.0

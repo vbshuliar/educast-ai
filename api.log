@@ -1,0 +1,191 @@
+/Users/macbookpro/Data/educast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+✓ Valyu.ai SDK initialized successfully
+✓ Knowledge Extractor initialized
+✓ OpenAI client initialized
+✓ ElevenLabs client initialized
+✓ Podcast Generator initialized
+✓ Podcast Generator initialized
+============================================================
+EduCast AI API Server
+============================================================
+Environment: development
+API Key configured: Yes
+
+ * Serving Flask app 'api'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.20.219:5001
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+/Users/macbookpro/Data/educast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+ * Debugger is active!
+ * Debugger PIN: 117-310-356
+127.0.0.1 - - [22/Nov/2025 13:36:50] "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:37:25] "OPTIONS /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:37:44] "POST /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:37:47] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:39:23] "POST /api/generate-podcast HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:43:22] "OPTIONS /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:43:36] "POST /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:45:35] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:47:12] "POST /api/generate-podcast HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:48:53] "OPTIONS /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:49:09] "POST /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:50:02] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
+ * Detected change in '/Users/macbookpro/Data/educast-ai/api.py', reloading
+✓ Valyu.ai SDK initialized successfully
+✓ Knowledge Extractor initialized
+✓ OpenAI client initialized
+✓ ElevenLabs client initialized
+✓ Podcast Generator initialized
+✓ Podcast Generator initialized
+============================================================
+EduCast AI API Server
+============================================================
+Environment: development
+API Key configured: Yes
+
+
+📥 Received query: how to win hackathons
+
+🔍 Extracting knowledge for: 'how to win hackathons'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+✓ Successfully extracted 3278 characters
+
+🎙️ Full podcast generation requested
+   Query: how to win hackathons
+   Style: educational, Length: short, Speakers: 2
+
+📚 Step 1: Extracting knowledge...
+
+🔍 Extracting knowledge for: 'how to win hackathons'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+
+🎬 Step 2: Generating podcast...
+
+============================================================
+COMPLETE PODCAST GENERATION PIPELINE
+============================================================
+
+Step 1: Generating dialogue script...
+
+🎬 Generating short educational dialogue script...
+   Topic: how to win hackathons
+   Speakers: 2
+✓ Generated script with 13 dialogue turns
+
+Step 2: Formatting for ElevenLabs...
+
+Step 3: Generating audio...
+
+🎙️ Generating podcast audio...
+   Dialogue turns: 13
+   Output: podcasts/how_to_win_hackathons.mp3
+   Converting to audio...
+✓ Audio generated successfully
+   File: podcasts/how_to_win_hackathons.mp3
+   Size: 2.42 MB
+   Estimated duration: ~145.4 seconds
+
+============================================================
+✅ PODCAST GENERATED SUCCESSFULLY!
+============================================================
+✅ Podcast generated successfully!
+
+📥 Received query: how to win hackathons
+
+🔍 Extracting knowledge for: 'how to win hackathons'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+✓ Successfully extracted 3132 characters
+
+🎙️ Full podcast generation requested
+   Query: how to win hackathons
+   Style: educational, Length: short, Speakers: 2
+
+📚 Step 1: Extracting knowledge...
+
+🔍 Extracting knowledge for: 'how to win hackathons'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+
+🎬 Step 2: Generating podcast...
+
+============================================================
+COMPLETE PODCAST GENERATION PIPELINE
+============================================================
+
+Step 1: Generating dialogue script...
+
+🎬 Generating short educational dialogue script...
+   Topic: how to win hackathons
+   Speakers: 2
+✓ Generated script with 13 dialogue turns
+
+Step 2: Formatting for ElevenLabs...
+
+Step 3: Generating audio...
+
+🎙️ Generating podcast audio...
+   Dialogue turns: 13
+   Output: podcasts/how_to_win_hackathons.mp3
+   Converting to audio...
+✓ Audio generated successfully
+   File: podcasts/how_to_win_hackathons.mp3
+   Size: 2.10 MB
+   Estimated duration: ~125.9 seconds
+
+============================================================
+✅ PODCAST GENERATED SUCCESSFULLY!
+============================================================
+✅ Podcast generated successfully!
+
+📥 Received query: quantum computing
+
+🔍 Extracting knowledge for: 'quantum computing'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+✓ Successfully extracted 2428 characters
+
+🎙️ Full podcast generation requested
+   Query: quantum computing
+   Style: educational, Length: short, Speakers: 2
+
+📚 Step 1: Extracting knowledge...
+
+🔍 Extracting knowledge for: 'quantum computing'
+   Search depth: comprehensive
+ * Restarting with stat
+/Users/macbookpro/Data/educast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+ * Debugger is active!
+ * Debugger PIN: 117-310-356
+ * Detected change in '/Users/macbookpro/Data/educast-ai/api.py', reloading
+✓ Valyu.ai SDK initialized successfully
+✓ Knowledge Extractor initialized
+✓ OpenAI client initialized
+✓ ElevenLabs client initialized
+✓ Podcast Generator initialized
+✓ Podcast Generator initialized
+============================================================
+EduCast AI API Server
+============================================================
+Environment: development
+API Key configured: Yes
+
+ * Restarting with stat
+/Users/macbookpro/Data/educast-ai/venv/lib/python3.14/site-packages/elevenlabs/core/pydantic_utilities.py:13: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.datetime_parse import parse_date as parse_date
+ * Debugger is active!
+ * Debugger PIN: 117-310-356
+127.0.0.1 - - [22/Nov/2025 13:50:49] "OPTIONS /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:51:01] "POST /api/extract HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:55:30] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:57:18] "POST /api/generate-podcast HTTP/1.1" 200 -
+127.0.0.1 - - [22/Nov/2025 13:57:24] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
