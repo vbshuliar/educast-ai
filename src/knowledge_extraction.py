@@ -230,7 +230,7 @@ def main():
     Example usage of the KnowledgeExtractor.
     """
     print("=" * 60)
-    print("EduCast AI - Knowledge Extraction Test")
+    print("KnowCast AI - Knowledge Extraction Test")
     print("=" * 60)
 
     # Initialize extractor

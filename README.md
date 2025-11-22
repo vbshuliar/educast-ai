@@ -1,6 +1,6 @@
-# EduCast AI 🎙️
+# KnowCast AI 🎙️
 
-Transform any learning topic into engaging podcast conversations using AI.
+Transform any topic into engaging podcast conversations using AI. Ask about anything - knowledge, news, current events, and more.
 
 ## Quick Setup
 
@@ -40,14 +40,14 @@ Open `frontend/index.html` in your browser.
 
 ## How It Works
 
-1. **Enter a learning query** (e.g., "I want to learn about machine learning")
+1. **Enter any query** (e.g., "What's happening with AI regulation?", "Explain quantum computing", "Latest news on climate change")
 2. **Click "Extract Knowledge"** - Searches the internet and extracts comprehensive information
 3. **Click "Generate Podcast"** - Creates a multi-speaker audio conversation
 
 ## Project Structure
 
 ```
-educast-ai/
+knowcast-ai/
 ├── src/              # Main application code
 ├── tests/            # Test files
 ├── scripts/          # Utility scripts
@@ -92,4 +92,4 @@ lsof -i :5001  # Find process
 
 ---
 
-**Built for learners everywhere** 🚀
+**Ask anything, learn everything** 🚀

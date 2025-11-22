@@ -266,7 +266,7 @@ def main():
     # Test with simple dialogue
     test_dialogue = [
         {
-            "text": "[cheerfully] Welcome to EduCast AI! Today we're testing our podcast generation.",
+            "text": "[cheerfully] Welcome to KnowCast AI! Today we're testing our podcast generation.",
             "voice_id": "9BWtsMINqrJLrRacOk9x"
         },
         {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCast AI - Learn Anything</title>
+    <title>KnowCast AI - Ask Anything</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -351,7 +351,7 @@
                 e.preventDefault();
 
                 if (!query.trim()) {
-                    setError('Please enter what you want to learn');
+                    setError('Please enter what you would like to know about');
                     return;
                 }
 
@@ -385,7 +385,7 @@
 
             const handleGeneratePodcast = async () => {
                 if (!query.trim()) {
-                    setError('Please enter what you want to learn');
+                    setError('Please enter what you would like to know about');
                     return;
                 }
 
@@ -450,21 +450,21 @@
             return (
                 <div className="container">
                     <div className="header">
-                        <h1>🎙️ EduCast AI</h1>
-                        <p>Transform any topic into knowledge</p>
+                        <h1>🎙️ KnowCast AI</h1>
+                        <p>Transform any topic into a podcast - knowledge, news, current events, and more</p>
                     </div>
 
                     <div className="card">
                         <form onSubmit={handleSubmit}>
                             <div className="input-section">
-                                <label htmlFor="query">What do you want to learn?</label>
+                                <label htmlFor="query">What would you like to know about?</label>
                                 <div className="input-wrapper">
                                     <input
                                         id="query"
                                         type="text"
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
-                                        placeholder="e.g., I want to learn about quantum computing"
+                                        placeholder="Type your query here..."
                                         disabled={loading}
                                     />
                                     <button type="submit" disabled={loading}>

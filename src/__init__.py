@@ -1,5 +1,5 @@
 """
-EduCast AI - Main Application Package
+KnowCast AI - Main Application Package
 """
 
 from .knowledge_extraction import KnowledgeExtractor

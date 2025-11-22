@@ -1,5 +1,5 @@
 """
-Flask API for EduCast AI Knowledge Extraction
+Flask API for KnowCast AI
 Simple backend to serve the React frontend
 """
 
@@ -287,7 +287,7 @@ def download_podcast(filename):
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("EduCast AI API Server")
+    print("KnowCast AI API Server")
     print("=" * 60)
     print(f"Environment: {os.getenv('FLASK_ENV', 'development')}")
     print(f"API Key configured: {'Yes' if os.getenv('VALYU_API_KEY') else 'No'}")

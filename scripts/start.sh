@@ -9,7 +9,7 @@ PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 cd "$PROJECT_ROOT"
 
 echo "================================================"
-echo "  EduCast AI - Starting Application"
+echo "  KnowCast AI - Starting Application"
 echo "================================================"
 echo ""
 

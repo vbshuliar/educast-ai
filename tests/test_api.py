@@ -7,7 +7,7 @@ import json
 
 API_URL = "http://localhost:5001/api"
 
-print("Testing EduCast AI API...")
+print("Testing KnowCast AI API...")
 print("=" * 60)
 
 # Test 1: Health check
