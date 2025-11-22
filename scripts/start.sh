@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get the project root (one level up from scripts/)
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+# Change to project root
+cd "$PROJECT_ROOT"
+
 echo "================================================"
 echo "  EduCast AI - Starting Application"
 echo "================================================"
@@ -15,7 +23,7 @@ fi
 # Check if .env exists
 if [ ! -f ".env" ]; then
     echo "❌ .env file not found!"
-    echo "   Please copy .env.example to .env and add your API keys"
+    echo "   Please create .env file and add your API keys"
     exit 1
 fi
 
@@ -34,5 +42,5 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-# Start the API server
-python3 api.py
+# Start the API server (from project root, run src/api.py as module)
+python3 -m src.api

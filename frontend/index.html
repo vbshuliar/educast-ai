@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -199,7 +200,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .spinner {
@@ -268,6 +271,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
 
@@ -285,6 +289,63 @@
             const [knowledgeCollapsed, setKnowledgeCollapsed] = useState(false);
 
             const API_URL = 'http://localhost:5001/api';
+
+            // Clean answer text by removing source references and citations
+            const cleanAnswerText = (text) => {
+                if (!text) return '';
+
+                let cleaned = text;
+
+                // Remove everything after "Sources" section (case insensitive)
+                const sourcesPattern = /(?:^|\n)\s*(?:##\s*)?(?:Sources?|References?|Bibliography|Citations?)(?:\s*##)?\s*(?:\n|$)/i;
+                const sourcesMatch = cleaned.search(sourcesPattern);
+                if (sourcesMatch !== -1) {
+                    cleaned = cleaned.substring(0, sourcesMatch);
+                }
+
+                // Also remove any trailing "Sources:" or "References:" lines
+                cleaned = cleaned.replace(/\n\s*(?:Sources?|References?|Bibliography|Citations?):\s*.*$/i, '');
+
+                // First, preserve markdown links by temporarily replacing them
+                const linkPlaceholders = [];
+                let linkIndex = 0;
+                cleaned = cleaned.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+                    const placeholder = `__LINK_${linkIndex}__`;
+                    linkPlaceholders.push({ placeholder, text, url });
+                    linkIndex++;
+                    return placeholder;
+                });
+
+                // Remove citation patterns like [1], [2], [source 1], etc.
+                cleaned = cleaned.replace(/\[\d+\]/g, ''); // [1], [2], etc.
+                cleaned = cleaned.replace(/\[source\s+\d+\]/gi, ''); // [source 1], etc.
+                cleaned = cleaned.replace(/\[citation\s+\d+\]/gi, ''); // [citation 1], etc.
+                cleaned = cleaned.replace(/\[ref\s+\d+\]/gi, ''); // [ref 1], etc.
+                cleaned = cleaned.replace(/\[Source\s+\d+\]/g, ''); // [Source 1], etc.
+
+                // Remove standalone URLs (not in markdown links)
+                cleaned = cleaned.replace(/https?:\/\/[^\s\)]+/g, ''); // URLs
+
+                // Remove "Source:" or "Reference:" lines
+                cleaned = cleaned.replace(/^(Source|Reference|Sources|References):\s*.*$/gmi, '');
+
+                // Remove lines that are just URLs
+                cleaned = cleaned.replace(/^https?:\/\/.*$/gm, '');
+
+                // Remove trailing citations at the end of lines
+                cleaned = cleaned.replace(/\s*\[.*?\]\s*$/gm, '');
+
+                // Restore markdown links
+                linkPlaceholders.forEach(({ placeholder, text, url }) => {
+                    cleaned = cleaned.replace(placeholder, `[${text}](${url})`);
+                });
+
+                // Clean up multiple spaces and newlines
+                cleaned = cleaned.replace(/\n{3,}/g, '\n\n'); // Max 2 newlines
+                cleaned = cleaned.replace(/[ \t]{2,}/g, ' '); // Multiple spaces
+
+                return cleaned.trim();
+            };
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
@@ -416,7 +477,7 @@
                         {loading && (
                             <div className="status loading">
                                 <div className="spinner"></div>
-                                Searching the internet for knowledge...
+                                Searching the internet for knowledge using Valyu.ai...
                             </div>
                         )}
 
@@ -429,20 +490,20 @@
                         {result && (
                             <div className="status success">
                                 ✓ Successfully extracted knowledge from {result.sources?.length || 0} sources
-                                <div style={{marginTop: '15px'}}>
+                                <div style={{ marginTop: '15px' }}>
                                     <button
                                         onClick={handleGeneratePodcast}
                                         disabled={podcastLoading}
-                                        style={{width: '100%'}}
+                                        style={{ width: '100%' }}
                                     >
-                                        {podcastLoading ? '🎬 Generating Podcast...' : '🎙️ Generate Podcast'}
+                                        {podcastLoading ? '🎬 Generating Podcast using ElevenLabs...' : '🎙️ Generate Podcast using ElevenLabs'}
                                     </button>
                                 </div>
                             </div>
                         )}
 
                         {podcastLoading && (
-                            <div className="status loading" style={{marginTop: '15px'}}>
+                            <div className="status loading" style={{ marginTop: '15px' }}>
                                 <div className="spinner"></div>
                                 Generating podcast (this may take 30-60 seconds)...
                             </div>
@@ -457,9 +518,7 @@
                                 </audio>
                                 <div className="podcast-info">
                                     <p><strong>Speakers:</strong> {podcast.metadata?.num_speakers || 2}</p>
-                                    <p><strong>Style:</strong> {podcast.metadata?.style || 'Educational'}</p>
                                     <p><strong>Duration:</strong> ~{Math.round(podcast.metadata?.estimated_duration || 0)}s</p>
-                                    <p style={{marginTop: '10px', fontSize: '0.85rem', opacity: '0.9'}}>✓ Downloaded to your device</p>
                                 </div>
                             </div>
                         )}
@@ -477,7 +536,7 @@
                                     marginBottom: scriptCollapsed ? '0' : '15px'
                                 }}
                             >
-                                <h2 style={{margin: 0}}>📝 Podcast Script</h2>
+                                <h2 style={{ margin: 0 }}>📝 Podcast Script</h2>
                                 <span style={{
                                     fontSize: '1.5rem',
                                     color: '#667eea',
@@ -494,10 +553,10 @@
                                     borderRadius: '8px',
                                     borderLeft: `4px solid ${idx % 2 === 0 ? '#667eea' : '#4caf50'}`
                                 }}>
-                                    <strong style={{color: idx % 2 === 0 ? '#667eea' : '#4caf50'}}>
+                                    <strong style={{ color: idx % 2 === 0 ? '#667eea' : '#4caf50' }}>
                                         {turn.speaker}:
                                     </strong>
-                                    <span style={{marginLeft: '8px'}}>{turn.text}</span>
+                                    <span style={{ marginLeft: '8px' }}>{turn.text}</span>
                                 </div>
                             ))}
                         </div>
@@ -515,7 +574,7 @@
                                     marginBottom: knowledgeCollapsed ? '0' : '15px'
                                 }}
                             >
-                                <h2 style={{margin: 0}}>📚 Knowledge Summary</h2>
+                                <h2 style={{ margin: 0 }}>📚 Knowledge Summary</h2>
                                 <span style={{
                                     fontSize: '1.5rem',
                                     color: '#667eea',
@@ -527,6 +586,7 @@
 
                             {!knowledgeCollapsed && (
                                 <>
+                                    {/* First section: Clean knowledge text only */}
                                     <div style={{
                                         background: '#f8f9fa',
                                         padding: '24px',
@@ -542,7 +602,7 @@
                                                 color: '#2c3e50'
                                             }}
                                             dangerouslySetInnerHTML={{
-                                                __html: result.answer
+                                                __html: cleanAnswerText(result.answer)
                                                     .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
                                                     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #667eea; text-decoration: underline;">$1</a>')
                                                     .replace(/^## (.*?)$/gm, '<h3 style="font-size: 1.3rem; color: #667eea; margin: 20px 0 10px 0; font-family: -apple-system, sans-serif;">$1</h3>')
@@ -551,6 +611,8 @@
                                             }}
                                         />
                                     </div>
+
+                                    {/* Second section: Sources list */}
 
                                     {result.sources && result.sources.length > 0 && (
                                         <div style={{
@@ -645,4 +707,5 @@
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
+
 </html>

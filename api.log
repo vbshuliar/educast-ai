@@ -189,3 +189,98 @@ API Key configured: Yes
 127.0.0.1 - - [22/Nov/2025 13:55:30] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
 127.0.0.1 - - [22/Nov/2025 13:57:18] "POST /api/generate-podcast HTTP/1.1" 200 -
 127.0.0.1 - - [22/Nov/2025 13:57:24] "OPTIONS /api/generate-podcast HTTP/1.1" 200 -
+ * Detected change in '/Users/macbookpro/Data/educast-ai/src/api.py', reloading
+✓ Valyu.ai SDK initialized successfully
+✓ Knowledge Extractor initialized
+✓ OpenAI client initialized
+✓ ElevenLabs client initialized
+✓ Podcast Generator initialized
+✓ Podcast Generator initialized
+============================================================
+EduCast AI API Server
+============================================================
+Environment: development
+API Key configured: Yes
+
+
+📥 Received query: quantum computing
+
+🔍 Extracting knowledge for: 'quantum computing'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+✓ Successfully extracted 2765 characters
+
+🎙️ Full podcast generation requested
+   Query: quantum computing
+   Style: educational, Length: short, Speakers: 2
+
+📚 Step 1: Extracting knowledge...
+
+🔍 Extracting knowledge for: 'quantum computing'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+
+🎬 Step 2: Generating podcast...
+
+============================================================
+COMPLETE PODCAST GENERATION PIPELINE
+============================================================
+
+Step 1: Generating dialogue script...
+
+🎬 Generating short educational dialogue script...
+   Topic: quantum computing
+   Speakers: 2
+✓ Generated script with 13 dialogue turns
+
+Step 2: Formatting for ElevenLabs...
+
+Step 3: Generating audio...
+
+🎙️ Generating podcast audio...
+   Dialogue turns: 13
+   Output: podcasts/quantum_computing.mp3
+   Converting to audio...
+✓ Audio generated successfully
+   File: podcasts/quantum_computing.mp3
+   Size: 2.57 MB
+   Estimated duration: ~154.1 seconds
+
+============================================================
+✅ PODCAST GENERATED SUCCESSFULLY!
+============================================================
+✅ Podcast generated successfully!
+
+🎙️ Full podcast generation requested
+   Query: quantum computing
+   Style: educational, Length: short, Speakers: 2
+
+📚 Step 1: Extracting knowledge...
+
+🔍 Extracting knowledge for: 'quantum computing'
+   Search depth: comprehensive
+✓ Knowledge extracted successfully
+
+🎬 Step 2: Generating podcast...
+
+============================================================
+COMPLETE PODCAST GENERATION PIPELINE
+============================================================
+
+Step 1: Generating dialogue script...
+
+🎬 Generating short educational dialogue script...
+   Topic: quantum computing
+   Speakers: 2
+✓ Generated script with 13 dialogue turns
+
+Step 2: Formatting for ElevenLabs...
+
+Step 3: Generating audio...
+
+🎙️ Generating podcast audio...
+   Dialogue turns: 13
+   Output: podcasts/quantum_computing.mp3
+   Converting to audio...
+ * Restarting with stat
+/Library/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/macbookpro/Data/educast-ai/api.py': [Errno 2] No such file or directory

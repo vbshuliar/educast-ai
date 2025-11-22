@@ -160,7 +160,7 @@ class PodcastGenerator:
 
     def __init__(self):
         """Initialize with all required generators"""
-        from script_generator import ScriptGenerator
+        from .script_generator import ScriptGenerator
 
         try:
             self.script_gen = ScriptGenerator()

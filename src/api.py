@@ -5,15 +5,19 @@ Simple backend to serve the React frontend
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from knowledge_extraction import KnowledgeExtractor
-from audio_generator import PodcastGenerator
+from .knowledge_extraction import KnowledgeExtractor
+from .audio_generator import PodcastGenerator
 import os
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 
+# Get project root directory (parent of src/)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PODCASTS_DIR = os.path.join(PROJECT_ROOT, 'podcasts')
+
 # Ensure podcasts directory exists
-os.makedirs('podcasts', exist_ok=True)
+os.makedirs(PODCASTS_DIR, exist_ok=True)
 
 # Initialize knowledge extractor
 try:
@@ -210,10 +214,12 @@ def generate_podcast():
 
         # Step 2: Generate podcast
         print("\n🎬 Step 2: Generating podcast...")
+        safe_filename = query[:50].replace(' ', '_').replace('/', '_')
+        output_path = os.path.join(PODCASTS_DIR, f"{safe_filename}.mp3")
         podcast_result = podcast_gen.generate_podcast(
             knowledge=knowledge_result['answer'],
             topic=query,
-            output_path=f"podcasts/{query[:50].replace(' ', '_')}.mp3",
+            output_path=output_path,
             num_speakers=num_speakers,
             style=style,
             length=length
@@ -257,7 +263,7 @@ def download_podcast(filename):
     Download generated podcast audio file
     """
     try:
-        file_path = os.path.join('podcasts', filename)
+        file_path = os.path.join(PODCASTS_DIR, filename)
 
         if not os.path.exists(file_path):
             return jsonify({
